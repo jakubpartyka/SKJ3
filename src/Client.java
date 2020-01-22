@@ -32,6 +32,9 @@ public class Client{
         in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 
         String choice = "LOGOUT";
+
+        boolean keepAlive = true;
+        while (keepAlive) {
         do {
                 //ask user for action
                 System.out.println("what would you like to do?");
@@ -50,21 +53,34 @@ public class Client{
         //send user choice to server
         send(choice);
 
-        switch (choice){
-            case LOGOUT  :
-                disconnect();
-                break;
-            case PLAY    :
-                break;
-            case LIST    :
-                System.out.println(receive());
-                break;
-            default :
-                log("wrong choice code sent. Closing connection");
-                disconnect();
+
+            switch (choice) {
+                case LOGOUT:
+                    disconnect();
+                    keepAlive = false;
+                    break;
+                case PLAY:
+                    break;
+                case LIST:
+                    receiveList();
+                    break;
+                default:
+                    log("wrong choice code sent. Closing connection");
+                    keepAlive = false;
+                    disconnect();
+            }
         }
 
         disconnect();
+    }
+
+    private static void receiveList() {
+        int size = Integer.parseInt(receive());
+        System.out.println(size + " player(s) currently active:\n");
+        for (int i = 0; i < size ; i++) {
+            System.out.println(receive());
+        }
+        System.out.println("----");
     }
 
     private static boolean connect() {
@@ -85,7 +101,7 @@ public class Client{
     }
 
     private static void disconnect(){
-        out.println(3);                 //send disconnect message
+        out.println(LOGOUT);                 //send disconnect message
         try {
             socket.close();
         } catch (IOException e) {

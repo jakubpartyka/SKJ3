@@ -62,10 +62,13 @@ public class ClientHandler implements Runnable {
 
     private void sendList() {
         String list = "Lista graczy:\n";
+        System.out.println(list);
+        client.send(String.valueOf(Main.activeClients.size()));
         for (Player player : Main.activeClients) {
-            list += player.getId() + "-" + player.getSocket().getInetAddress() + ':' + player.getSocket().getPort() + "\n";
+            client.send(player.getId() + "-" + player.getSocket().getInetAddress() + ':' + player.getSocket().getPort());
         }
-        client.send(list);
+
+        log("sent list to client");
     }
 
     private void log(String message){

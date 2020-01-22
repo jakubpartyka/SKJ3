@@ -6,6 +6,11 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
 public class Player{
+    //communication
+    BufferedReader in;
+    PrintWriter out;
+
+
     private static int idCounter = 0;
     private int id;
     private Socket socket;
@@ -14,6 +19,14 @@ public class Player{
         this.socket = socket;
         this.id = idCounter + 1;
         idCounter ++;
+
+        try {
+            in = new BufferedReader(new InputStreamReader(this.getSocket().getInputStream()));
+            out = new PrintWriter(this.getSocket().getOutputStream(), true);
+        }
+        catch (IOException e){
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -46,22 +59,14 @@ public class Player{
     }
 
     void send(String message){
-        try {
-            PrintWriter out = new PrintWriter(this.getSocket().getOutputStream(), true);
-            out.println(message);
-            out.close();
-        } catch (IOException e) {
-            disconnect();
-            e.printStackTrace();
-        }
+        out.println(message);
     }
+
 
     String receive(){
         String message;
         try {
-            BufferedReader in = new BufferedReader(new InputStreamReader(this.getSocket().getInputStream()));
             message = in.readLine();
-            in.close();
             return message;
         } catch (IOException e) {
             disconnect();
