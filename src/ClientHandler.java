@@ -1,3 +1,6 @@
+import org.omg.PortableServer.THREAD_POLICY_ID;
+
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
@@ -28,10 +31,11 @@ public class ClientHandler implements Runnable {
 
 
         while (active){       //client handling loop
+
             //wait for user choice
             log("waiting for user's choice");
             String choice = client.receive();
-            log("received: " + choice);
+            log("received: " + choice + " from client with id " + client.getId());
 
             try {
                 switch (choice){
@@ -39,10 +43,28 @@ public class ClientHandler implements Runnable {
                         client.disconnect();
                         active=false;
                         break;
-                    case CLIENT_PLAY    : newGame();  break;
+
+                    case CLIENT_PLAY    :
+                        Game.matchMaking.add(client);        //add client to list of players waiting for a game
+                        if(Game.matchMaking.size()%2 == 0 && Game.matchMaking.size() > 1) {
+                            Thread thread = new Thread(() -> {
+                                try {
+                                    new Game();
+                                } catch (IOException e) {
+                                    log("client disconnected");
+                                    active = false;
+                                    client.disconnect();
+                                }
+                            });
+                            thread.start();
+                        }
+                        waitRunnable();
+                        break;
+
                     case CLIENT_LIST    :
                         sendList();
                         break;
+
                     default :
                         log("wrong choice code received. Closing connection");
                         active = false;
@@ -57,12 +79,15 @@ public class ClientHandler implements Runnable {
         }
     }
 
-    private void newGame() {
+    private synchronized void waitRunnable() {
+        try {
+            this.wait();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
     private void sendList() {
-        String list = "Lista graczy:\n";
-        System.out.println(list);
         client.send(String.valueOf(Main.activeClients.size()));
         for (Player player : Main.activeClients) {
             client.send(player.getId() + "-" + player.getSocket().getInetAddress() + ':' + player.getSocket().getPort());
@@ -75,7 +100,8 @@ public class ClientHandler implements Runnable {
         SimpleDateFormat sdf =  new SimpleDateFormat("DD-MM-YY HH:mm:ss");
         System.out.println("[" + sdf.format(Calendar.getInstance().getTime()) + "][Hndl]: " + message);
     }
-    
-    
-    
+
+    Player getClient() {
+        return client;
+    }
 }

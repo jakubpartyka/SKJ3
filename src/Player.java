@@ -4,11 +4,11 @@ import java.io.*;
 import java.net.Socket;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
-
 public class Player{
     //communication
     BufferedReader in;
     PrintWriter out;
+    private ClientHandler handler;
 
 
     private static int idCounter = 0;
@@ -37,11 +37,28 @@ public class Player{
     void disconnect(){
         log("disconnecting client " + toString());
         Main.activeClients.remove(this);
+        Game.matchMaking.remove(this);
         try {
             socket.close();
         } catch (IOException e) {
             log("disconnecting failed");
             e.printStackTrace();
+        }
+    }
+
+    void send(String message){
+        out.println(message);
+    }
+
+    String receive(){
+        String message;
+        try {
+            message = in.readLine();
+            return message;
+        } catch (IOException e) {
+            disconnect();
+            e.printStackTrace();
+            return null;
         }
     }
 
@@ -58,23 +75,12 @@ public class Player{
         return id;
     }
 
-    void send(String message){
-        out.println(message);
+    void setHandler(ClientHandler handler) {
+        this.handler = handler;
     }
 
-
-    String receive(){
-        String message;
-        try {
-            message = in.readLine();
-            return message;
-        } catch (IOException e) {
-            disconnect();
-            e.printStackTrace();
-            return null;
-        }
+    ClientHandler getHandler() {
+        return handler;
     }
+
 }
-
-
-//todo socket should be a global field

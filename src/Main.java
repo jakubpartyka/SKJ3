@@ -1,7 +1,6 @@
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.ServerSocket;
-import java.net.Socket;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -18,13 +17,13 @@ public class Main {
     public static void main(String[] args) {
         log("server start");
 
-
         //accepting clients
         try {
             while (true) {
                 ClientHandler newHandler = new ClientHandler(acceptClient(), nextId());
+                newHandler.getClient().setHandler(newHandler);
                 Thread thread = new Thread(newHandler);
-                thread.start();
+                thread.start();                                 //starting new client handler thread
             }
         }
         catch (Exception e){
