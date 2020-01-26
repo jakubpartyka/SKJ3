@@ -18,6 +18,8 @@ public class Client{
     private static PrintWriter out;
     private static BufferedReader in;
 
+    private static int id;
+
     private static Socket socket;
     private static String server_address = "localhost";
     private static int server_port       = 9090;
@@ -36,7 +38,11 @@ public class Client{
         out = new PrintWriter(socket.getOutputStream(), true);
         in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 
-        String choice = "LOGOUT";
+        //getting id given by server
+        id = Integer.parseInt(receive());
+        System.out.println("your id is: " + id);
+
+        String choice = LOGOUT;
 
         boolean keepAlive = true;
         while (keepAlive) {
@@ -48,7 +54,7 @@ public class Client{
 
                 //read user choice
                 try{
-                    choice = new Scanner(System.in).nextLine();
+                    choice = new Scanner(System.in).nextLine().toUpperCase();
                 }
                 catch (Exception e){
                     disconnect();

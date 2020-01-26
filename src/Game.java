@@ -12,11 +12,8 @@ class Game {
     private List<Player> players = new ArrayList<>();
     private int [] board = new int[9];
     private int winner;
-    private static int idCounter = 0;
-    private int id;
 
     Game() throws IOException {
-        id = idCounter++;
 
         //take two first client
         player1 = matchMaking.get(0);
@@ -44,8 +41,6 @@ class Game {
         players.add(player1);
         players.add(player2);
 
-        Main.activeGames.add(this);     //add to active games list (for broadcast)
-
         players.forEach(player -> player.send(Arrays.toString(board)));                //sending initial board state
 
         while (!gameCompleted()) {
@@ -70,9 +65,8 @@ class Game {
                 player1.send("END");        //both of the player's are prompted that the game is over
                 player2.send("END");
                 players.forEach(player -> player.send(Arrays.toString(board)));
-
-                Main.activeGames.remove(this);
                 System.out.println("server ending game on force quit");
+                return;
             }
         }
 
@@ -192,9 +186,6 @@ class Game {
         return board;
     }
 
-    public int getId() {
-        return id;
-    }
 }
 
 

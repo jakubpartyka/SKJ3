@@ -11,7 +11,6 @@ public class Main {
 
     private static int id = 0;
     static List<Player> activeClients   = new ArrayList<>();
-    static List<Game>   activeGames     = new ArrayList<>();
 
     @SuppressWarnings("InfiniteLoopStatement")
     public static void main(String[] args) {
@@ -38,6 +37,7 @@ public class Main {
                 log("Server waiting for client");
                 return new Player(serverSocket.accept());
             } catch (IOException e) {
+
                 e.printStackTrace();
             }
     }

@@ -18,6 +18,7 @@ public class ClientHandler implements Runnable {
         this.client = client;
         this.id = id;
         active = true;
+        client.send(String.valueOf(id));
     }
 
     @Override
@@ -77,6 +78,7 @@ public class ClientHandler implements Runnable {
                 client.disconnect();
             }
         }
+        Main.activeClients.remove(client);
     }
 
     private synchronized void waitRunnable() {
